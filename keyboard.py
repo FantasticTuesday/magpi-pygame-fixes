@@ -28,88 +28,114 @@ leftDown = False
 rightDown = False
 haveJumped = False
 
+#test variables
+printkeypress = False
+
 def move():
 
-	global playerX, playerY, playerVX, playerVY, haveJumped, gravity
+        global playerX, playerY, playerVX, playerVY, haveJumped, gravity
 
-	# Move left 
-	if leftDown:
-		#If we're already moving to the right, reset the moving speed and invert the direction
-		if playerVX >= 0.0:
-			playerVX = moveSpeed
-			playerVX = -playerVX	
-		# Make sure our square doesn't leave our window to the left
-		if playerX > 0:
-			playerX += playerVX	
+        moveX = False
+        # Move left 
+        if leftDown and not rightDown:
+                #flag that we will move in x, set speed if not in left-wards motion
+                moveX = True
+                if playerVX > -moveSpeed:
+                        playerVX = -moveSpeed
 
-	# Move right
-	if rightDown:
-		# If we're already moving to the left reset the moving speed again
-		if playerVX <= 0.0:
-			playerVX = moveSpeed
-		# Make sure our square doesn't leave our window to the right
-		if playerX + playerSize < windowWidth:
-			playerX += playerVX
+        # Move right
+        if rightDown and not leftDown:
+                #flag that we will move in x, set speed if not currently moving left
+                moveX = True
+                if playerVX < moveSpeed:
+                        playerVX = moveSpeed
 
-	if playerVY > 1.0:
-		playerVY = playerVY * 0.9
-	else :
-		playerVY = 0.0
-		haveJumped = False
+        #will this move cause clipping? set move to false and put box at edge of window
+        if playerX + playerVX <= 0.0:
+                playerX = 0
+                playerVX = 0.0
+                moveX = False
+        if playerX + playerVX >= windowWidth - playerSize:
+                playerX = windowWidth - playerSize
+                playerVX = 0.0
+                moveX = False
 
-	# Is our square in the air? Better add some gravity to bring it back down!
-	if playerY < windowHeight - playerSize:
-		playerY += gravity
-		gravity = gravity * 1.1
-	else :
-		playerY = windowHeight - playerSize
-		gravity = 1.0
+        if playerVY > 1.0:
+                playerVY = playerVY * 0.9
+        else :
+                playerVY = 0.0
+                haveJumped = False
 
-	playerY -= playerVY
+        # Is our square in the air? Better add some gravity to bring it back down!
+        if playerY < windowHeight - playerSize:
+                playerY += gravity
+                gravity = gravity * 1.1
+        else :
+                playerY = windowHeight - playerSize
+                gravity = 1.0
 
-	if playerVX > 0.0 and playerVX < maxSpeed or playerVX < 0.0 and playerVX > -maxSpeed:
-		if haveJumped == False:
-			playerVX = playerVX * 1.1
+        playerY -= playerVY
+        
+        if moveX:
+                playerX += playerVX
+                moveX = False
+
+        if playerVX > 0.0 and playerVX < maxSpeed or playerVX < 0.0 and playerVX > -maxSpeed:
+                if haveJumped == False:
+                        playerVX = playerVX * 1.1
 
 # How to quit our program
 def quitGame():
-	pygame.quit()
-	sys.exit()
-
+        pygame.quit()
+        sys.exit()
+        
+print(leftDown,rightDown,haveJumped)
 while True:
 
-	surface.fill((0,0,0))
+        surface.fill((0,0,0))
 
-	pygame.draw.rect(surface, (255,0,0), (playerX, playerY, playerSize, playerSize))
+        pygame.draw.rect(surface, (255,0,0), (playerX, playerY, playerSize, playerSize))
 
-	# Get a list of all events that happened since the last redraw
-	for event in GAME_EVENTS.get():
 
-		if event.type == pygame.KEYDOWN:
 
-			if event.key == pygame.K_LEFT:
-				leftDown = True
-			if event.key == pygame.K_RIGHT:
-				rightDown = True
-			if event.key == pygame.K_UP:
-				if not haveJumped:
-					haveJumped = True
-					playerVY += jumpHeight
-			if event.key == pygame.K_ESCAPE:
-				quitGame()
+        # Get a list of all events that happened since the last redraw
+        for event in GAME_EVENTS.get():
 
-		if event.type == pygame.KEYUP:
-			if event.key == pygame.K_LEFT:
-				leftDown = False
-				playerVX = 0.0
-			if event.key == pygame.K_RIGHT:
-				rightDown = False
-				playerVX = 0.0
+                if event.type == pygame.KEYDOWN:
 
-		if event.type == GAME_GLOBALS.QUIT:
-			quitGame()
+                        if event.key == pygame.K_LEFT:
+                                leftDown = True
+                                if printkeypress:
+                                        print("Key left down.")
+                        if event.key == pygame.K_RIGHT:
+                                rightDown = True
+                                if printkeypress:
+                                        print("Key right down.")
+                        if event.key == pygame.K_UP:
+                                if not haveJumped:
+                                        haveJumped = True
+                                        playerVY += jumpHeight
+                                if printkeypress:
+                                        print("Key up down.")
+                        if event.key == pygame.K_ESCAPE:
+                                quitGame()
 
-	move()
+                if event.type == pygame.KEYUP:
+                        if event.key == pygame.K_LEFT:
+                                leftDown = False
+                                playerVX = 0.0
+                                if printkeypress:
+                                        print("Key left up.")
+                        if event.key == pygame.K_RIGHT:
+                                rightDown = False
+                                playerVX = 0.0
+                                if printkeypress:
+                                        print("Key right up.")
 
-	clock.tick(60)
-	pygame.display.update()
+                if event.type == GAME_GLOBALS.QUIT:
+                        quitGame()
+
+        move()
+
+        clock.tick(60)
+        pygame.display.update()
