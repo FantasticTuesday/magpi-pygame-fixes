@@ -20,6 +20,7 @@ mousePressed = False
 
 #debug
 debug = True
+debug2 = False
 
 # Square Variables
 squareSize = 40
@@ -31,6 +32,7 @@ squareVY = 0.0
 draggingSquare = False
 fallingSquare = False
 gravity = 3.0
+elasticity = 0.5 # 0 < x < 1, fraction of speed lost in collision
 
 def checkBounds():
 
@@ -61,27 +63,36 @@ def checkMomentum():
 
         if draggingSquare:
                 mouseLastPosition = mousePosition #sets up comparison between mouse position in the current and last frame, giving us the speed when released
-                if debug:
+                if debug and debug2:
                         print("Dragging Square")
                 return
         
         if fallingSquare:
+                squareVY += gravity                
                 squareX += squareVX
                 squareY += squareVY
-                if debug:
+                if debug and debug2:
                         print("Square is falling")
 
         if squareX < 0.0: #handle collision with left border
                 squareX = 0.0
-                squareVX = 0.0
+                squareVX = -squareVX * elasticity
                 if debug:
                         print("Square has hit left border")
                         
         if squareX > windowWidth - squareSize: #handle collision with right border
                 squareX = windowWidth - squareSize
-                squareVX = 0.0
+                squareVX = -squareVX * elasticity
                 if debug:
                         print("Square has hit right border")
+
+        if squareY > windowHeight - squareSize: #handle collision with bottom
+                squareY = windowHeight - squareSize
+                squareVY = -squareVY * elasticity
+                if debug:
+                        print("Square has hit the bottom")
+
+        
 
 
 
@@ -91,11 +102,9 @@ def checkGravity():
 
         # Is our square in the air and have we let go of it?
         if squareY < windowHeight - squareSize and draggingSquare == False:
-                squareVY += gravity
                 fallingSquare = True #square is currently falling!
-        else :
+        elif squareVY < 1 and squareVY > -1: #using a modulus function is cleaner but this avoids the import
                 squareY = windowHeight - squareSize
-                gravity = 3.0
                 fallingSquare = False #square has hit bottom or is being dragged, hence no longer falling
 
 def drawSquare():
