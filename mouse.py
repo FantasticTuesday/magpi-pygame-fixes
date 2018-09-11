@@ -27,17 +27,19 @@ squareColor = (255, 0, 0)
 squareX = windowWidth / 2
 squareY = windowHeight - squareSize
 squareVX = 0.0
+squareVY = 0.0
 draggingSquare = False
 fallingSquare = False
-gravity = 5.0
+gravity = 3.0
 
 def checkBounds():
 
-        global mousePosition, mouseLastPosition, squareColor, squareX, squareY, squareVX, draggingSquare, fallingSquare
+        global mousePosition, mouseLastPosition, squareColor, squareX, squareY, squareVX, squareVY, draggingSquare, fallingSquare
 
         if draggingSquare and not mousePressed: #if we were dragging the square in the last frame, and now our mouse is unpressed, it follows that we have released the square
                 fallingSquare = True
                 squareVX = mousePosition[0] - mouseLastPosition[0]
+                squareVY = mousePosition[1] - mouseLastPosition[1]
                 if debug:
                         print("Square has been released.")
 
@@ -55,7 +57,7 @@ def checkBounds():
 
 def checkMomentum():
 
-        global mousePosition, mouseLastPosition, squareX, squareVX, draggingSquare, fallingSquare
+        global mousePosition, mouseLastPosition, squareX, squareY, squareVX, squareVY, draggingSquare, fallingSquare
 
         if draggingSquare:
                 mouseLastPosition = mousePosition #sets up comparison between mouse position in the current and last frame, giving us the speed when released
@@ -65,33 +67,35 @@ def checkMomentum():
         
         if fallingSquare:
                 squareX += squareVX
+                squareY += squareVY
                 if debug:
                         print("Square is falling")
 
-        if squareX < 0.0:
+        if squareX < 0.0: #handle collision with left border
                 squareX = 0.0
                 squareVX = 0.0
                 if debug:
                         print("Square has hit left border")
-        if squareX > windowWidth - squareSize:
+                        
+        if squareX > windowWidth - squareSize: #handle collision with right border
                 squareX = windowWidth - squareSize
                 squareVX = 0.0
                 if debug:
                         print("Square has hit right border")
-        #for now we are only handling movement in the x-plane
+
+
 
 def checkGravity():
 
-        global gravity, squareY, squareSize, windowHeight, fallingSquare
+        global gravity, squareY, squareVY, squareSize, windowHeight, fallingSquare
 
         # Is our square in the air and have we let go of it?
         if squareY < windowHeight - squareSize and draggingSquare == False:
-                squareY += gravity
-                gravity = gravity * 1.1
+                squareVY += gravity
                 fallingSquare = True #square is currently falling!
         else :
                 squareY = windowHeight - squareSize
-                gravity = 5.0
+                gravity = 3.0
                 fallingSquare = False #square has hit bottom or is being dragged, hence no longer falling
 
 def drawSquare():
