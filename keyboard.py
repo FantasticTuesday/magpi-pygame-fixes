@@ -16,7 +16,7 @@ pygame.display.set_caption('Pygame Keyboard!')
 playerSize = 20
 playerX = (windowWidth / 2) - (playerSize / 2)
 playerY = windowHeight - playerSize
-playerVX = 1.0
+playerVX = 0.0
 playerVY = 0.0
 jumpHeight = 25.0
 moveSpeed = 1.0
@@ -35,7 +35,7 @@ def move():
 	# Move left 
 	if leftDown:
 		#If we're already moving to the right, reset the moving speed and invert the direction
-		if playerVX > 0.0:
+		if playerVX >= 0.0:
 			playerVX = moveSpeed
 			playerVX = -playerVX	
 		# Make sure our square doesn't leave our window to the left
@@ -45,7 +45,7 @@ def move():
 	# Move right
 	if rightDown:
 		# If we're already moving to the left reset the moving speed again
-		if playerVX < 0.0:
+		if playerVX <= 0.0:
 			playerVX = moveSpeed
 		# Make sure our square doesn't leave our window to the right
 		if playerX + playerSize < windowWidth:
@@ -101,10 +101,10 @@ while True:
 		if event.type == pygame.KEYUP:
 			if event.key == pygame.K_LEFT:
 				leftDown = False
-				playerVX = moveSpeed
+				playerVX = 0.0
 			if event.key == pygame.K_RIGHT:
 				rightDown = False
-				playerVX = moveSpeed
+				playerVX = 0.0
 
 		if event.type == GAME_GLOBALS.QUIT:
 			quitGame()
